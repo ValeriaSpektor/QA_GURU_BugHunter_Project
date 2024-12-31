@@ -1,0 +1,22 @@
+{
+  "name": "bughunter_project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "debug": "npx playwright test --ui",
+    "test": "npx playwright test",
+    "allureOpen": "allure open",
+    "allureGenerate": "allure generate",
+    "allure": "allure generate --clean && allure open",
+    "testEnv": "export NODE_ENV=auto-test npx playwright test"
+  },
+  "keywords": [],
+  "author": "Valeria Spektor",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "allure-commandline": "^2.32.0",
+    "allure-playwright": "^3.0.7"
+  }
+}
