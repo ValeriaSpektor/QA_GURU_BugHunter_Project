@@ -1,37 +1,49 @@
-name: Allure Report CI/CD
+name: Playwright Tests with Allure Reports
 
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
+    # Установка Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
 
+    # Клонирование кода
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Установка зависимостей
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
+    # Установка Playwright Browsers
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
+    # Запуск тестов Playwright
     - name: Run Playwright tests
       run: npx playwright test
 
+    # Генерация Allure отчета
     - name: Generate Allure Report
-      run: npx allure generate allure-results --clean
+      run: |
+        npx allure generate allure-results --clean
+        npx allure open allure-report
 
+    # Деплой отчета Allure на GitHub Pages
     - name: Deploy Allure Report to GitHub Pages
+      if: success()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
