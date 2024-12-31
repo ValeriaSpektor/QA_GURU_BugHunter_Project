@@ -25,7 +25,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # Установка Playwright browsers
+    # Исправление прав доступа
+    - name: Fix permissions
+      run: chmod +x node_modules/.bin/playwright
+
+    # Установка Playwright Browsers
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
@@ -35,9 +39,7 @@ jobs:
 
     # Генерация Allure отчета
     - name: Generate Allure Report
-      run: |
-        npx allure generate allure-results --clean
-        npx allure open allure-report
+      run: npx allure generate allure-results --clean
 
     # Публикация Allure отчета на GitHub Pages
     - name: Deploy Allure Report to GitHub Pages
