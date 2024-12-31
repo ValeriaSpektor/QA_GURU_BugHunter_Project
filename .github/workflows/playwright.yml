@@ -11,37 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Установка репозитория
+    # Шаг 1: Клонирование репозитория
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Установка Node.js
+    # Шаг 2: Установка Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
-    # Установка зависимостей
+    # Шаг 3: Установка зависимостей
     - name: Install dependencies
       run: npm install
 
-    # Исправление прав доступа
-    - name: Fix permissions
-      run: chmod +x node_modules/.bin/playwright
+    # Шаг 4: Исправление прав доступа для allure
+    - name: Fix permissions for Allure
+      run: chmod +x ./node_modules/.bin/allure
 
-    # Установка Playwright Browsers
+    # Шаг 5: Установка Playwright Browsers
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # Запуск тестов Playwright
+    # Шаг 6: Запуск тестов Playwright
     - name: Run Playwright tests
       run: npx playwright test
 
-    # Генерация Allure отчета
+    # Шаг 7: Генерация Allure отчета
     - name: Generate Allure Report
       run: npx allure generate allure-results --clean
 
-    # Публикация Allure отчета на GitHub Pages
+    # Шаг 8: Публикация Allure отчета на GitHub Pages
     - name: Deploy Allure Report to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
