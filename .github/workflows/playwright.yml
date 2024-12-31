@@ -1,4 +1,4 @@
-name: Playwright Tests with Allure Reports
+name: test
 
 on:
   push:
@@ -8,71 +8,42 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
 
     steps:
-      # Шаг 1: Клонирование репозитория
-      - name: Checkout code
-        uses: actions/checkout@v2
+    # Установка репозитория
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # Шаг 2: Установка Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-          cache: 'npm'
+    # Установка Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
-      # Шаг 3: Установка зависимостей
-      - name: Install dependencies
-        run: npm install
+    # Установка зависимостей
+    - name: Install dependencies
+      run: npm install
 
-      # Шаг 4: Исправление прав доступа для allure
-      - name: Fix permissions for Allure
-        run: chmod +x ./node_modules/.bin/allure
+    # Исправление прав доступа
+    - name: Fix permissions
+      run: chmod +x node_modules/.bin/playwright
 
-      # Шаг 5: Установка Playwright Browsers
-      - name: Install Playwright Browsers
-        run: |
-          npx playwright install
-          sudo npx playwright install-deps
+    # Установка Playwright Browsers
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
 
-      # Шаг 6: Запуск тестов Playwright
-      - name: Run Playwright tests
-        run: npx playwright test
-        env:
-          CI: true
+    # Запуск тестов Playwright
+    - name: Run Playwright tests
+      run: npx playwright test
 
-      # Шаг 7: Генерация Allure отчета
-      - name: Generate Allure Report
-        if: always()
-        run: npx allure generate allure-results --clean
+    # Генерация Allure отчета
+    - name: Generate Allure Report
+      run: npx allure generate allure-results --clean
 
-      # Шаг 8: Публикация Allure отчета на GitHub Pages
-      - name: Deploy Allure Report to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          keep_files: true
-
-      # Шаг 9: Сохранение артефактов при неудаче
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: |
-            test-results/
-            playwright-report/
-            allure-results/
-
-      # Шаг 10: Публикация отчета Playwright
-      - name: Publish Playwright Report
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+    # Публикация Allure отчета на GitHub Pages
+    - name: Deploy Allure Report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./allure-report
