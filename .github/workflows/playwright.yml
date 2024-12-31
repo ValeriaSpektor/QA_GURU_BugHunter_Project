@@ -17,11 +17,11 @@ jobs:
     steps:
       # Шаг 1: Клонирование репозитория
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3  # Используйте v3, так как это стабильная версия.
 
       # Шаг 2: Установка Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3  # Используйте v3 вместо v4.
         with:
           node-version: lts/*
 
@@ -39,7 +39,7 @@ jobs:
 
       # Шаг 6: Сохранение результатов Allure
       - name: Save Allure Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3  # Используйте v3 вместо v4.
         if: always()
         with:
           name: allure-results
@@ -48,7 +48,7 @@ jobs:
 
       # Шаг 7: Получение истории Allure
       - name: Get Allure History
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3  # Используйте ту же стабильную версию, что и ранее.
         if: always()
         with:
           ref: gh-pages
@@ -56,7 +56,7 @@ jobs:
 
       # Шаг 8: Генерация отчёта Allure
       - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@master
+        uses: simple-elf/allure-report-action@v1.6.0  # Укажите конкретную версию, например v1.6.0.
         if: always()
         with:
           allure_results: allure-results
@@ -67,7 +67,7 @@ jobs:
 
       # Шаг 9: Публикация отчёта Allure на GitHub Pages
       - name: Deploy Allure Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3  # Укажите v3, так как это стабильная версия.
         with:
           github_token: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
           publish_branch: gh-pages
