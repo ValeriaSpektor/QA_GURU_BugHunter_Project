@@ -1,4 +1,4 @@
-name: test
+name: CI
 
 on:
   push:
@@ -11,42 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Шаг 1: Клонирование репозитория
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Шаг 2: Установка Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: 18
 
-    # Шаг 3: Установка зависимостей
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
-    # Шаг 4: Установка Playwright Browsers
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # Шаг 5: Установка Allure CLI
     - name: Install Allure CLI
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openjdk-11-jre
-        curl -o allure-commandline.zip -Ls https://github.com/allure-framework/allure2/releases/download/2.20.1/allure-2.20.1.zip
-        sudo unzip -o allure-commandline.zip -d /opt/allure
-        sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+      run: npm install -g allure-commandline --save-dev
 
-    # Шаг 6: Запуск тестов Playwright
     - name: Run Playwright tests
       run: npx playwright test
 
-    # Шаг 7: Генерация Allure отчета
     - name: Generate Allure Report
-      run: allure generate allure-results --clean -o allure-report
+      run: npx allure generate allure-results --clean
 
-    # Шаг 8: Публикация Allure отчета на GitHub Pages
     - name: Deploy Allure Report to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
