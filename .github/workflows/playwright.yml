@@ -1,60 +1,63 @@
-name: Allure Report CI/CD
+name: QA_GURU_BugHunter_Project_Workflow
+
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
+      # Шаг 1: Клонирование репозитория
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3  # Используйте v3, так как это стабильная версия.
 
+      # Шаг 2: Установка Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3  # Используйте v3 вместо v4.
         with:
           node-version: lts/*
 
+      # Шаг 3: Установка зависимостей
       - name: Install dependencies
         run: npm install
 
-      - name: Fix Playwright permissions
-        run: chmod +x ./node_modules/.bin/playwright
-
+      # Шаг 4: Установка браузеров Playwright
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      # Шаг 5: Запуск тестов Playwright
       - name: Run Playwright tests
         run: npm run test
 
+      # Шаг 6: Сохранение результатов Allure
       - name: Save Allure Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3  # Используйте v3 вместо v4.
         if: always()
-        continue-on-error: true
         with:
           name: allure-results
           path: allure-results
           retention-days: 10
 
+      # Шаг 7: Получение истории Allure
       - name: Get Allure History
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3  # Используйте ту же стабильную версию, что и ранее.
         if: always()
-        continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
 
+      # Шаг 8: Генерация отчёта Allure
       - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@master
+        uses: simple-elf/allure-report-action@v1.6.0  # Укажите конкретную версию, например v1.6.0.
         if: always()
-        id: allure-report
         with:
           allure_results: allure-results
           gh_pages: gh-pages
@@ -62,10 +65,10 @@ jobs:
           allure_history: allure-history
           keep_reports: 10
 
+      # Шаг 9: Публикация отчёта Allure на GitHub Pages
       - name: Deploy Allure Report to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3  # Укажите v3, так как это стабильная версия.
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: allure-report
