@@ -1,49 +1,68 @@
 name: CI/CD Pipeline with Allure Report
-
 on:
   push:
-    branches:
-      - main
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
+    branches: [main, master]
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   test:
-    name: Run Playwright tests
+    timeout-minutes: 60
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Fix permissions for Playwright and Allure
-      run: |
-        chmod +x ./node_modules/.bin/playwright
-        chmod +x ./node_modules/.bin/allure
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npm run test
 
-    - name: Run Playwright tests
-      run: npx playwright test
-      env:
-        CI: true
+      - name: Save Allure Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: allure-results
+          path: allure-results
+          retention-days: 10
 
-    - name: Generate Allure Report
-      run: npx allure generate allure-results --clean
+      - name: Get Allure History
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
 
-    - name: Deploy Allure Report to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.ACTIONS_DEPLOY_TOKEN }}
-        publish_dir: ./allure-report
-        publish_branch: gh-pages
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        id: allure-report
+        with:
+          allure_results: allure-results
+          gh_pages: gh-pages
+          allure_report: allure-report
+          allure_history: allure-history
+          keep_reports: 10
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
