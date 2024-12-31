@@ -1,4 +1,4 @@
-name: CI/CD Pipeline with Allure Report
+name: AcademyBugs_test
 on:
   push:
     branches: [main, master]
